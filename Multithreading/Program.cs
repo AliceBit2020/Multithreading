@@ -9,7 +9,7 @@ public class Multithreading
         int a;
         for (int i = 0; i < 20; i++)
         {
-            Console.WriteLine($"Id thread:   {Thread.CurrentThread.ManagedThreadId}");
+            Console.WriteLine($"Id thread  MyThread()  :   {Thread.CurrentThread.ManagedThreadId}");
             Thread.Sleep(1000);///  1с
         }
         Console.WriteLine($"Завершает работу {Thread.CurrentThread.ManagedThreadId} поток!");
@@ -17,10 +17,31 @@ public class Multithreading
 
     public static void ThreadParam(object obj)///200
     {
+        ///unboxin
 
-        (int,string) delay = (   (int, string)   )obj ;////  unboxin
-         
-    
+        (int,string) delay = (   (int, string)   )obj ;////  explicit
+
+        Console.WriteLine($"tuple item1: {delay.Item1}");
+        Console.WriteLine($"tuple item2: {delay.Item2}");
+
+        // int delay=(int)obj;
+
+
+        /////Варіанти розпаковки////////////////////////////////////
+
+        //try
+        //{
+        //    Person p = (Person)obj;//////  explicit  може викликати виключення
+        //}
+        //catch (Exception e) { }
+
+
+        //Person? p1 = obj as Person;
+
+        //if(obj is Person)
+        //    Person p2 = (Person)obj;
+
+
         Thread t = Thread.CurrentThread;
 
         for (int i = 0; i < 10; i++)
@@ -36,31 +57,68 @@ public class Multithreading
         Console.WriteLine("Статус потока: {0}", t.ThreadState);
     }
 
+    public static void  Func()
+    {
+        for (int i = 0; i < 5; i++)
+        {
+            
+            Console.WriteLine($"Id thread Func:   {Thread.CurrentThread.ManagedThreadId}   Priority {Thread.CurrentThread.Priority}");
+            Thread.Sleep(1000);///  1с
+        }
+    }
+
+   static void TestBackground()
+    {
+ 
+        Thread th= new Thread(Func);
+        Console.WriteLine("TestBackground  create thread");
+        th.Priority= ThreadPriority.Highest;
+        th.IsBackground = false;  ////основний
+        Console.WriteLine("TestBackground make thread  th.IsBackground = false; ");
+
+        th.Start();
+        Console.WriteLine("TestBackground  start thread");
+    }
+
     public static void Main()
     {
+        ///////////////////////////////////////////////////
+        //////1. Запуск методів без параметрів
+        
+        Thread fon = new Thread(new ThreadStart(TestBackground));
+        fon.IsBackground = true;/// фоновий
+        fon.Start();
+        Thread.Sleep(1000);
 
-        ///Главный поток
-        ///
-        Thread t = Thread.CurrentThread;
+        //// / Главный поток
+        //// /
+        // Thread t = Thread.CurrentThread;
 
-        Console.WriteLine("Имя потока: {0}", t.Name);
-        t.Name = "Метод Main";
-        Console.WriteLine("Имя потока: {0}", t.Name);
+        // Console.WriteLine("Имя потока: {0}", t.Name);
+        // t.Name = "Метод Main";
+        // Console.WriteLine("Имя потока: {0}", t.Name);
 
-        Console.WriteLine("Запущен ли поток: {0}", t.IsAlive);
-        Console.WriteLine("Приоритет потока: {0}", t.Priority);
-        Console.WriteLine("Статус потока: {0}", t.ThreadState);
+        // Console.WriteLine("Запущен ли поток: {0}", t.IsAlive);
+        // Console.WriteLine("Приоритет потока: {0}", t.Priority);
+        // Console.WriteLine("Статус потока: {0}", t.ThreadState);
+        // Console.WriteLine("Id потока  main: {0}", t.ManagedThreadId);
 
-        Thread th = new Thread(new ThreadStart(MyThread));//// 
-        th.IsBackground = true;////  фоновый, то основний його не чекає, якщо завершиться основний потік, він закриє фоновий
+        // Func();////  основний головний потік
 
-        ///за замовчуванням foreground, це означає що основний потік почекає його завершення
 
-        Console.WriteLine("Имя потока: {0}", th.Name);
-        Console.WriteLine("Запущен ли поток: {0}", th.IsAlive);
-        Console.WriteLine("Статус потока: {0}", th.ThreadState);
-        th.Start();
 
+
+        //Thread th = new Thread(new ThreadStart(MyThread));//// 
+        //th.IsBackground = false;/// фоновий, то основний його не чекає, якщо завершиться основний потік, він закриє фоновий
+
+        /////за замовчуванням foreground, це означає що основний потік почекає його завершення
+
+        //Console.WriteLine("Имя потока: {0}", th.Name);
+        //Console.WriteLine("Запущен ли поток: {0}", th.IsAlive);
+        //Console.WriteLine("Статус потока: {0}", th.ThreadState);
+        //th.Start();
+
+        ////Console.ReadLine();
 
         //Thread th1 = new Thread(new ThreadStart(MyThread));
         //th1.IsBackground = true;////  фоновый
@@ -71,31 +129,35 @@ public class Multithreading
 
 
 
-        //th.Join();//// обращение к главному потоку с просьбой подождать  завершения th    БЛОКИРУЮЩИЙ
+        // th.Join();//// обращение к главному потоку с просьбой подождать  завершения th    БЛОКИРУЮЩИЙ
 
-        //Console.WriteLine("After Join");
+        //////Console.WriteLine("After Join");
 
 
         //Thread.Sleep(2000);
+        //th.Abort();
 
-
-
+        /////////////////////////////////////////////////////////////////////////////
 
         //Thread th1 = new Thread(new ParameterizedThreadStart(ThreadParam));
         //th1.IsBackground = true;
         //th1.Name = "второй";
-        //th1.Start((200,"tuple"));
+        //th1.Start((200, "test tuple"));
 
-        //Thread th2 = new Thread(new ParameterizedThreadStart(ThreadParam));
-        //th2.IsBackground = true;
-        //th2.Name = "третий";
-        //th2.Start(80);
+        //////Thread th2 = new Thread(new ParameterizedThreadStart(ThreadParam));
+        //////th2.IsBackground = true;
+        //////th2.Name = "третий";
+        //////th2.Start(80);
 
         //Console.ReadKey();
 
-        //Console.WriteLine("Имя потока: {0}", th.Name);
-        //Console.WriteLine("Запущен ли поток: {0}", th.IsAlive);
-        //Console.WriteLine("Статус потока: {0}", th.ThreadState);
+        ////Console.WriteLine("Имя потока: {0}", th.Name);
+        ////Console.WriteLine("Запущен ли поток: {0}", th.IsAlive);
+        ////Console.WriteLine("Статус потока: {0}", th.ThreadState);
+        ///
+
+
+
     }
 
     /*
